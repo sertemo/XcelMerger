@@ -1,21 +1,29 @@
 services:
   auth:
     build: ./services/auth
+    container_name: auth_container
+    volumes:
+      - ./common:/app/common
+      - ./logs:/app/logs
     ports:
       - "8000:8000"
     env_file: ./services/auth/.env
     networks:
-      - mi_red
+      - xcelmerger_network
     restart: unless-stopped
 
   frontend:
     build: ./services/frontend
+    container_name: frontend_container
+    volumes:
+      - ./common:/app/common
+      - ./logs:/app/logs
     ports:
-      - "8080:5000"
+      - "5050:5050"
     env_file: ./services/frontend/.env
     networks:
-      - mi_red
+      - xcelmerger_network
     restart: unless-stopped
 
 networks:
-  mi_red:
+  xcelmerger_network:

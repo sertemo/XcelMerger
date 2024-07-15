@@ -51,11 +51,18 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 
         ['dragenter', 'dragover'].forEach(eventName => {
-            dropArea.addEventListener(eventName, () => dropArea.classList.add('highlight'), false);
+            dropArea.addEventListener(eventName, (e) => {
+                preventDefaults(e);
+                dropArea.classList.add('highlight');
+            }, false);
         });
 
         ['dragleave', 'drop'].forEach(eventName => {
-            dropArea.addEventListener(eventName, () => dropArea.classList.remove('highlight'), false);
+            dropArea.addEventListener(eventName, (e) => {
+                preventDefaults(e);
+                dropArea.classList.remove('highlight');
+            }, false);
+                
         });
 
         dropArea.addEventListener('drop', handleDrop, false);

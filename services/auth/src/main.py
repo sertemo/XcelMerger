@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta, timezone
-from typing import Optional, Annotated
+from typing import Optional, Annotated, Union
 import os
 
 from dotenv import load_dotenv
@@ -11,23 +11,25 @@ from jwt.exceptions import InvalidTokenError
 from passlib.context import CryptContext
 import uvicorn
 
-from models import Token, TokenData, User, UserInDB
-from user_db import userdb_manager, SQLManager
+from common.settings import (
+    ALGORITHM,
+    ACCESS_TOKEN_EXPIRE_MINUTES,
+    FRONTEND_SERVICE_URL
+)
+from .models import Token, TokenData, User, UserInDB
+from .user_db import userdb_manager, SQLManager
+
 
 load_dotenv()
 
-
 # Secret key to encode and decode JWT tokens
 SECRET_KEY = os.getenv("SECRET_KEY")
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 1
-
 
 app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5000"],  # Allow only frontend origin
+    allow_origins=[FRONTEND_SERVICE_URL],  # Allow only frontend origin
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -37,15 +39,57 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 
-def verify_password(plain_password, hashed_password):
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    """Verifica si la contraseña es correcta
+
+    Parameters
+    ----------
+    plain_password : str
+        _description_
+    hashed_password : str
+        _description_
+
+    Returns
+    -------
+    bool
+        _description_
+    """
     return pwd_context.verify(plain_password, hashed_password)
 
 
-def get_password_hash(password):
+def get_password_hash(password: str) -> str:
+    """Hashea una contraseña utilizando
+    el algoritmo bcrypt
+
+    Parameters
+    ----------
+    password : str
+        _description_
+
+    Returns
+    -------
+    str
+        _description_
+    """
     return pwd_context.hash(password)
 
 
 def get_user(db_manager: SQLManager, username: str) -> Optional[UserInDB]:
+    """Devuelve el registro entero correspondiente
+    al usuario buscando o None si no existe
+
+    Parameters
+    ----------
+    db_manager : SQLManager
+        _description_
+    username : str
+        _description_
+
+    Returns
+    -------
+    Optional[UserInDB]
+        _description_
+    """
     user_dict = db_manager.find_one_dict(
         campo_buscado="username", valor_buscado=username
     )
@@ -54,7 +98,24 @@ def get_user(db_manager: SQLManager, username: str) -> Optional[UserInDB]:
     return UserInDB(**user_dict)
 
 
-def authenticate_user(db_manager, username: str, password: str):
+def authenticate_user(db_manager: SQLManager, username: str, password: str) -> Union[UserInDB, bool]:
+    """Autentica un usuario
+
+    Parameters
+    ----------
+    db_manager : SQLManager
+        _description_
+    username : str
+        _description_
+    password : str
+        _description_
+
+    Returns
+    -------
+    Union[UserInDB, False]
+        _description_
+    """
+
     user = get_user(db_manager, username)
     if not user:
         return False
@@ -63,7 +124,21 @@ def authenticate_user(db_manager, username: str, password: str):
     return user
 
 
-def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
+def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
+    """Crea un token JWT
+
+    Parameters
+    ----------
+    data : dict
+        _description_
+    expires_delta : Optional[timedelta], optional
+        _description_, by default None
+
+    Returns
+    -------
+    str
+        _description_
+    """
     to_encode = data.copy()
     if expires_delta:
         expire = datetime.now(timezone.utc) + expires_delta
@@ -126,6 +201,6 @@ async def read_users_me(
 ):
     return current_user
 
-
+""" 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8000) """

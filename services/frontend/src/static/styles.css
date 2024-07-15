@@ -10,6 +10,23 @@ body {
     align-items: center;
 }
 
+.header {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 10px 0;
+    text-align: center;
+    color: white;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.header h1 {
+    margin: 0;
+    font-size: 2.5em;
+    font-weight: 700;
+}
+
 /* Login */
 .user-box {
     position: relative;
@@ -72,6 +89,7 @@ body {
     background: rgba(0, 0, 0, 0.7);
     padding: 20px;
     border-radius: 10px;
+    margin-top: 20px; /* Añadido margen superior para separarlo del header */
 }
 
 .section {
@@ -122,6 +140,13 @@ body {
 .drag-area:hover {
     background: rgba(255, 255, 255, 0.2);
     border-color: #fff;
+}
+
+.drag-area.highlight {
+    background: rgba(3, 233, 244, 0.2);
+    border-color: #fff;
+    box-shadow: 0 0 10px 5px rgba(3, 233, 244, 0.5);
+    transition: all 0.3s ease-in-out;
 }
 
 button {
