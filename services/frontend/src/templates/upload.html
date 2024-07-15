@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cockpit | UniDB</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;700&display=swap">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="section">
+            <h2>Subir archivos</h2>
+            <p>Carga archivos excels para agregar a la base de datos</p>
+            <div class="upload-container">
+                <div class="drag-area" id="drag-area">
+                    Arrastra los archivos o <a href="#" id="fileSelectLink">súbelos</a>
+                    <input type="file" id="fileElem" multiple accept=".xlsx,.xls" style="display:none">
+                    <ul id="file-list"></ul>
+                    <button id="clearBtn" class="clear-button" style="display: none;">Borrar todo</button>
+                </div>
+                <button id="add-btn">Agregar</button>
+                <div class="file-info">
+                    <span id="file-count">Archivos subidos: 0</span>
+                    <span id="file-size">Tamaño total: 0 MB</span>
+                </div>
+                <div class="error-message" id="error-message"></div>
+            </div>
+        </div>
+        <div class="section">
+            <h2>Descargar</h2>
+            <p>Descarga la base de datos en formato excel</p>
+            <button id="download-btn" class="download-button">Descargar</button>
+            <div class="error-message-download" id="error-message-download"></div>
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

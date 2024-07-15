@@ -1,0 +1,21 @@
+services:
+  auth:
+    build: ./services/auth
+    ports:
+      - "8000:8000"
+    env_file: ./services/auth/.env
+    networks:
+      - mi_red
+    restart: unless-stopped
+
+  frontend:
+    build: ./services/frontend
+    ports:
+      - "8080:5000"
+    env_file: ./services/frontend/.env
+    networks:
+      - mi_red
+    restart: unless-stopped
+
+networks:
+  mi_red:
