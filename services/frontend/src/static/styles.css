@@ -19,6 +19,7 @@ body {
     position: sticky;
     top: 0;
     z-index: 1000;
+    margin-bottom: 20px;
 }
 
 .header h1 {
@@ -89,7 +90,6 @@ body {
     background: rgba(0, 0, 0, 0.7);
     padding: 20px;
     border-radius: 10px;
-    margin-top: 20px; /* Añadido margen superior para separarlo del header */
 }
 
 .section {

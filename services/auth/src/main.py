@@ -9,13 +9,8 @@ from fastapi.middleware.cors import CORSMiddleware
 import jwt
 from jwt.exceptions import InvalidTokenError
 from passlib.context import CryptContext
-import uvicorn
 
-from common.settings import (
-    ALGORITHM,
-    ACCESS_TOKEN_EXPIRE_MINUTES,
-    FRONTEND_SERVICE_URL
-)
+from common.settings import ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES, FRONTEND_SERVICE_URL
 from .models import Token, TokenData, User, UserInDB
 from .user_db import userdb_manager, SQLManager
 
@@ -40,7 +35,8 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    """Verifica si la contraseña es correcta
+    """Verifica si la contraseña
+    hasheada es correcta
 
     Parameters
     ----------
@@ -52,9 +48,11 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     Returns
     -------
     bool
-        _description_
+        True si son iguales
+        False si son diferentes
     """
-    return pwd_context.verify(plain_password, hashed_password)
+    verificacion: bool = pwd_context.verify(plain_password, hashed_password)
+    return verificacion
 
 
 def get_password_hash(password: str) -> str:
@@ -71,10 +69,11 @@ def get_password_hash(password: str) -> str:
     str
         _description_
     """
-    return pwd_context.hash(password)
+    hashed_password: str = pwd_context.hash(password)
+    return hashed_password
 
 
-def get_user(db_manager: SQLManager, username: str) -> Optional[UserInDB]:
+def get_user(db_manager: SQLManager, username: Union[str, None]) -> Optional[UserInDB]:
     """Devuelve el registro entero correspondiente
     al usuario buscando o None si no existe
 
@@ -90,6 +89,8 @@ def get_user(db_manager: SQLManager, username: str) -> Optional[UserInDB]:
     Optional[UserInDB]
         _description_
     """
+    if username is None:
+        return None
     user_dict = db_manager.find_one_dict(
         campo_buscado="username", valor_buscado=username
     )
@@ -98,7 +99,9 @@ def get_user(db_manager: SQLManager, username: str) -> Optional[UserInDB]:
     return UserInDB(**user_dict)
 
 
-def authenticate_user(db_manager: SQLManager, username: str, password: str) -> Union[UserInDB, bool]:
+def authenticate_user(
+    db_manager: SQLManager, username: str, password: str
+) -> Optional[UserInDB]:
     """Autentica un usuario
 
     Parameters
@@ -112,19 +115,23 @@ def authenticate_user(db_manager: SQLManager, username: str, password: str) -> U
 
     Returns
     -------
-    Union[UserInDB, False]
-        _description_
+    Union[UserInDB, None]
+        Devuelve el usuario si es correcto o
+        None si no es correcto
     """
 
     user = get_user(db_manager, username)
     if not user:
-        return False
+        return None
     if not verify_password(password, user.hashed_password):
-        return False
+        return None
     return user
 
 
-def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
+def create_access_token(
+    data: dict[str, Union[str, datetime]],
+    expires_delta: Optional[timedelta] = None,
+) -> str:
     """Crea un token JWT
 
     Parameters
@@ -144,8 +151,9 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
         expire = datetime.now(timezone.utc) + expires_delta
     else:
         expire = datetime.now(timezone.utc) + timedelta(minutes=15)
+    # Añadimos el tiempo de expiración al token
     to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    encoded_jwt: str = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
 
@@ -156,13 +164,12 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
         headers={"WWW-Authenticate": "Bearer"},
     )
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        username: str = payload.get("sub")
-        if username is None:
-            raise credentials_exception
+        payload: dict[str, str] = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        username: Union[str, None] = payload.get("sub")
         token_data = TokenData(username=username)
     except InvalidTokenError:
         raise credentials_exception
+
     user = get_user(userdb_manager, username=token_data.username)
     if user is None:
         raise credentials_exception
@@ -182,15 +189,16 @@ async def login_for_access_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
 ) -> Token:
     user = authenticate_user(userdb_manager, form_data.username, form_data.password)
-    if not user:
+    if user is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect username or password",
+            detail="Contraseña o usuarios incorrectos",
             headers={"WWW-Authenticate": "Bearer"},
         )
+    usuario: str = user.username
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
-        data={"sub": user.username}, expires_delta=access_token_expires
+        data={"sub": str(usuario)}, expires_delta=access_token_expires
     )
     return Token(access_token=access_token, token_type="bearer")
 
@@ -200,7 +208,3 @@ async def read_users_me(
     current_user: Annotated[User, Depends(get_current_active_user)],
 ):
     return current_user
-
-""" 
-if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000) """

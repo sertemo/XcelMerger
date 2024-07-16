@@ -9,7 +9,7 @@ services:
       - "8000:8000"
     env_file: ./services/auth/.env
     networks:
-      - xcelmerger_network
+      - xm_network
     restart: unless-stopped
 
   frontend:
@@ -22,8 +22,8 @@ services:
       - "5050:5050"
     env_file: ./services/frontend/.env
     networks:
-      - xcelmerger_network
+      - xm_network
     restart: unless-stopped
 
 networks:
-  xcelmerger_network:
+  xm_network:

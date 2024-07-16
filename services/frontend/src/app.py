@@ -49,12 +49,15 @@ def upload():
         logger.info("El usuario no ha iniciado sesión. Redirigiendo al login")
         return redirect(url_for("index"))
 
+    # Comprobamos si el token es válido
     headers = {"Authorization": f"Bearer {token}"}
     response = requests.get(f"{AUTH_SERVICE_URL}/users/me", headers=headers)
     username = session.get("username")
 
     if response.status_code == 200:
-        logger.info(f"El usuario '{username}' ha iniciado sesión. Permitiendo el acceso")
+        logger.info(
+            f"El usuario '{username}' ha iniciado sesión. Permitiendo el acceso"
+        )
         return render_template("upload.html")
     else:
         logger.info(f"El token de '{username}' ha caducado. Redirigiendo al login")

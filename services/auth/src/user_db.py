@@ -1,5 +1,7 @@
 import os
 import sqlite3
+from sqlite3 import Cursor
+from typing import Any, Optional
 
 from dotenv import load_dotenv
 
@@ -35,13 +37,14 @@ class SQLManager:
         self.db_filename = db_filename
         self.tabla = nombre_tabla
 
-    def get_table(self) -> list[tuple]:
+    def get_table(self) -> list[tuple[str]]:
         """Devuelve una lista de tuplas conteniendo
         cada tupla los campos de cada columna
             para cada registro de la tabla dada"""
         with SQLContext(self.db_filename) as c:
-            results = c.execute(f"""SELECT * from {self.tabla}""")
-            return results.fetchall()
+            cursor: Cursor = c.execute(f"""SELECT * from {self.tabla}""")
+            results: list[tuple[str]] = cursor.fetchall()
+            return results
 
     def get_number_of_records(self) -> int:
         """Devuelve el número de registros
@@ -83,7 +86,7 @@ class SQLManager:
                 {self.tabla} ADD COLUMN {nombre_columna} {tipo_dato} NULL"""
             )
 
-    def insert_one(self, columnas: dict) -> None:
+    def insert_one(self, columnas: dict[str, Any]) -> None:
         """inserta un registro en la tabla dada."""
         with SQLContext(self.db_filename) as c:
             query = f"""
@@ -91,7 +94,9 @@ class SQLManager:
             VALUES ({", ".join('?' * len(columnas))})"""
             c.execute(query, tuple(columnas.values()))
 
-    def find_one(self, *, campo_buscado: str, valor_buscado: str) -> tuple:
+    def find_one(
+        self, *, campo_buscado: str, valor_buscado: str
+    ) -> Optional[tuple[Any]]:
         """Devuelve todos los campos
         de la fila cuyo campo coincide
         con el valor buscado
@@ -105,17 +110,18 @@ class SQLManager:
 
         Returns
         -------
-        _type_
+        tuple[Any]
             _description_
         """
         with SQLContext(self.db_filename) as c:
             consulta = f"SELECT * FROM {self.tabla} WHERE {campo_buscado} = ?"
-            results = c.execute(consulta, (valor_buscado,))
-            return results.fetchone()
+            cursor: Cursor = c.execute(consulta, (valor_buscado,))
+            results: tuple[Any] = cursor.fetchone()
+            return results
 
     def find_one_dict(
         self, *, campo_buscado: str, valor_buscado: str
-    ) -> dict[str, str]:
+    ) -> Optional[dict[str, Any]]:
         """Devuelve todos los campos
         de la fila cuyo campo coincide
         con el valor buscado. Devuelve en
@@ -131,7 +137,7 @@ class SQLManager:
 
         Returns
         -------
-        dict[str, str]
+        dict[str, Any]
             _description_
         """
         with SQLContext(self.db_filename) as c:
@@ -142,7 +148,7 @@ class SQLManager:
                 return None
             return {k: v for k, v in zip(columnas, results)}
 
-    def find_all(self, *, campo_buscado: str, valor_buscado: str) -> list[list]:
+    def find_all(self, *, campo_buscado: str, valor_buscado: str) -> list[tuple[Any]]:
         """Devuelve todos los registros
         con todos los campos cuyo campo coincide
         con el valor buscado
@@ -156,13 +162,14 @@ class SQLManager:
 
         Returns
         -------
-        _type_
+        list[tuple[Any]]
             _description_
         """
         with SQLContext(self.db_filename) as c:
             consulta = f"SELECT * FROM {self.tabla} WHERE {campo_buscado} = ?"
-            results = c.execute(consulta, (valor_buscado,))
-            return list(results.fetchall())
+            cursor: Cursor = c.execute(consulta, (valor_buscado,))
+            results: list[tuple[Any]] = cursor.fetchall()
+            return list(results)
 
     def find_one_field(
         self, *, campo_buscado: str, valor_buscado: str, campo_a_retornar: str
@@ -194,7 +201,7 @@ class SQLManager:
 
     @classmethod
     def create_table(
-        cls, *, db_filename: str, nombre_tabla: str, columnas: tuple[str]
+        cls, *, db_filename: str, nombre_tabla: str, columnas: tuple[str, ...]
     ) -> None:
         with SQLContext(db_filename) as c:
             c.execute(
@@ -240,16 +247,12 @@ class SQLManager:
     ) -> None:
         assert len(columnas_a_actualizar) == len(
             nuevos_valores
-        ), "Las dos \
-            listas deben tener el mismo tamaño"
+        ), "Las dos listas deben tener el mismo tamaño"
         # Comprobamos que las columnas a actualizar estén en la base de datos
-        columnas = self.show_table_columns()
+        columnas = self.columns_names
         for col in columnas_a_actualizar:
             if col not in columnas:
-                raise ValueError(
-                    f"La columna {col}\
-                                no existe en la base de datos"
-                )
+                raise ValueError(f"La columna {col} " "no existe en la base de datos")
         with SQLContext(self.db_filename) as c:
             consulta = f"""
             UPDATE {self.tabla}
@@ -279,6 +282,16 @@ userdb_manager.insert_one(
         "username": "admin",
         "full_name": "Usuario Admin para pruebas",
         "email": "tejedor.moreno@gmail.com",
+        "hashed_password": os.getenv("ADMIN_PASS"),
+        "disabled": False,
+    }
+)
+
+userdb_manager.insert_one(
+    {
+        "username": "carlos",
+        "full_name": "carlosalberto8717@gmail.com",
+        "email": "carlos",
         "hashed_password": os.getenv("ADMIN_PASS"),
         "disabled": False,
     }
