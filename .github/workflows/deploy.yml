@@ -60,8 +60,8 @@ jobs:
         script: |
           source ~/.bashrc  # Para que las rutas estén en el path
           cd ${{ secrets.SERVER_PROJECT_PATH }}
-          /usr/libexec/docker/cli-plugins/docker-compose/docker-compose pull
-          /usr/libexec/docker/cli-plugins/docker-compose/docker-compose up -d
+          /usr/libexec/docker/cli-plugins/docker-compose pull
+          /usr/libexec/docker/cli-plugins/docker-compose up -d
 
     - name: Cleanup old images
       uses: appleboy/ssh-action@v1.0.3
