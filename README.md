@@ -1,5 +1,9 @@
 # XcelMerger
-## "Desafío" final de Bootcamp Data Science
+![Tests](https://github.com/sertemo/XcelMerger/actions/workflows/tests.yml/badge.svg)
+![Dependabot](https://img.shields.io/badge/dependabot-enabled-blue.svg?logo=dependabot)
+![GitHub](https://img.shields.io/github/license/sertemo/XcelMerger)
+
+### "Desafío" final de Bootcamp Data Science
 ### Limpiar y unificar documentos en una única base de datos
 ### v0.1.0
 
@@ -13,6 +17,11 @@
 ### The Good Riders
 
 ## Estructura del proyecto
+### common
+### servicios
+
+## Despliegue
+### https y certificado SSL
 
 
 ## Tecnologías

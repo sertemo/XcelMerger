@@ -58,7 +58,7 @@ jobs:
           pip install poetry
           poetry install --no-root --only dev
       - name: Run Black
-        run: poetry run black --check src
+        run: poetry run black --check services
 
   mypy:
     runs-on: ${{ matrix.os }}
@@ -84,7 +84,7 @@ jobs:
           pip install poetry
           poetry install --no-root --only dev
       - name: Run MyPy
-        run: poetry run mypy src --install-types --non-interactive
+        run: poetry run mypy services --install-types --non-interactive
 
   flake8:
     runs-on: ${{ matrix.os }}
@@ -110,7 +110,7 @@ jobs:
           pip install poetry
           poetry install --no-root --only dev
       - name: Run Flake8
-        run: poetry run flake8 src
+        run: poetry run flake8 services
 
   pytest:
     runs-on: ${{ matrix.os }}
