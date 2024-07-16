@@ -16,9 +16,9 @@ Carlos, Afonso y yo aceptamos el reto con la condición de realizarlo en equipo.
 Tras varias semanas de espera, C2B se puso en contacto con nosotros describiendo las bases del reto que se describen a continuación.
 
 ## Participantes
-Carlos García - carlosalberto8717@gmail.com
-Afonso Teixeira - afonsoteixeirasilva@gmail.com
-Sesrgio Tejedor - tejedor.moreno@gmail.com
+- Carlos García - carlosalberto8717@gmail.com
+- Afonso Teixeira - afonsoteixeirasilva@gmail.com
+- Sergio Tejedor - tejedor.moreno@gmail.com
 
 ## Descripción del reto
 ### Objetivo del reto
