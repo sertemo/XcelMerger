@@ -47,7 +47,8 @@ jobs:
         password: ${{ secrets.SERVER_SSH_KEY }}
         port: ${{ secrets.SERVER_SSH_PORT }}
         source: "common/*"
-        target: ${{ secrets.SERVER_PROJECT_PATH }}/common"
+        target: "${{ secrets.SERVER_PROJECT_PATH }}/common"
+        debug: true
 
     - name: Deploy to server
       uses: appleboy/ssh-action@v1.0.3
