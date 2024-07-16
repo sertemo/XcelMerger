@@ -2,6 +2,7 @@ import logging
 from logging.config import dictConfig
 from common.settings import LOG_PATH
 
+
 LOGGING_CONFIG = {
     "version": 1,
     "disable_existing_loggers": False,
