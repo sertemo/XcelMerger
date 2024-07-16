@@ -42,17 +42,19 @@ jobs:
     - name: Copy common folder to server
       uses: appleboy/scp-action@v0.1.7
       with:
-        source: "common/*"
-        target: "${{ secrets.SERVER_SSH_USER }}@${{ secrets.SERVER_SSH_HOST }}:${{ secrets.SERVER_PROJECT_PATH }}/common"
-        key: ${{ secrets.SERVER_SSH_KEY }}
+        host: ${{ secrets.SERVER_SSH_HOST }}
+        username: ${{ secrets.SERVER_SSH_USER }}
+        password: ${{ secrets.SERVER_SSH_KEY }}
         port: ${{ secrets.SERVER_SSH_PORT }}
+        source: "common/*"
+        target: ${{ secrets.SERVER_PROJECT_PATH }}/common"
 
     - name: Deploy to server
       uses: appleboy/ssh-action@v1.0.3
       with:
         host: ${{ secrets.SERVER_SSH_HOST }}
         username: ${{ secrets.SERVER_SSH_USER }}
-        key: ${{ secrets.SERVER_SSH_KEY }}
+        password: ${{ secrets.SERVER_SSH_KEY }}
         port: ${{ secrets.SERVER_SSH_PORT }}
         script: |
           cd ${{ secrets.SERVER_PROJECT_PATH }}
