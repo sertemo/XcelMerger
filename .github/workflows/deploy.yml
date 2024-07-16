@@ -47,7 +47,7 @@ jobs:
         password: ${{ secrets.SERVER_SSH_KEY }}
         port: ${{ secrets.SERVER_SSH_PORT }}
         source: "common/*"
-        target: "${{ secrets.SERVER_PROJECT_PATH }}/common"
+        target: "${{ secrets.SERVER_PROJECT_PATH }}"
         debug: true
 
     - name: Deploy to server
@@ -58,6 +58,7 @@ jobs:
         password: ${{ secrets.SERVER_SSH_KEY }}
         port: ${{ secrets.SERVER_SSH_PORT }}
         script: |
+          source ~/.bashrc  # Para que las rutas estén en el path
           cd ${{ secrets.SERVER_PROJECT_PATH }}
           docker-compose down
           docker-compose pull
