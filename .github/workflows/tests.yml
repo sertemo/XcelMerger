@@ -8,6 +8,7 @@ on:
     paths:
       - 'services/**'
       - 'common/**'
+      - tests.yml
   pull_request:
 
 jobs:
@@ -137,7 +138,7 @@ jobs:
           pip install poetry
           poetry install --no-root --only dev
       - name: Run Pytest
-        run: pytest --cov=src
+        run: poetry run pytest --cov=src
 
       
       - name: Upload coverage reports to Codecov
