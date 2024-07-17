@@ -40,21 +40,229 @@ correos electrónicos, etc., mediante web scraping de fuentes confiables.
 
 ### Criterios de evaluación
 Exactitud y Precisión: Efectividad en la corrección y normalización de datos.
-- Eficiencia: Tiempo y recursos utilizados para procesar los datos.
-- Escalabilidad: Capacidad para manejar grandes volúmenes de datos y nuevas
+- **Eficiencia**: Tiempo y recursos utilizados para procesar los datos.
+- **Escalabilidad**: Capacidad para manejar grandes volúmenes de datos y nuevas
 fuentes de información.
-- Documentación y Reproducibilidad: Calidad de la documentación y facilidad
+- **Documentación y Reproducibilidad**: Calidad de la documentación y facilidad
 para reproducir los resultados.
 
 
 ## Estructura del proyecto
+```
+XcelMerger/
+│
+├── common/  # Archivos usados por todos los servicios
+│   ├── logging_config.py  # Configuración del logging
+│   └── settings.py  # Rutas, constantes y algunos parámetros
+│
+├── services/  # Aquí estarán todos los servicios. Cada uno es un proyecto independiente
+│   ├── auth/
+│   │   ├── Dockerfile
+│   │   ├── .env  # 
+│   │   ├── src/  # Código fuente del servicio
+│   │   │   ├── __init__.py
+│   │   │   └── main.py
+│   │   └── tests/
+│   │       ├── __init__.py
+│   │       └── test_auth.py
+│   │
+│   └─── frontend/
+│        ├── Dockerfile
+│        ├── .env
+│        ├── src/
+│        │   ├── __init__.py
+│        │   └── app.py
+│        └── tests/
+│            ├── __init__.py
+│            └── test_frontend.py
+│   
+│   
+│
+├── docker-compose.yml
+└── pyproject.toml
+```
 ### common
 ### servicios
 
 ## Metodología
 
 ## Despliegue
+### Servidor
+#### Datos técnicos
+Para las pruebas de despliegue, se desplegará el proyecto en mi servidor casero. Se trata de un mini ordenador Beelink con las siguientes características:
+```sh
+Architecture:             x86_64
+  CPU op-mode(s):         32-bit, 64-bit
+  Address sizes:          39 bits physical, 48 bits virtual
+  Byte Order:             Little Endian
+CPU(s):                   4
+  On-line CPU(s) list:    0-3
+Vendor ID:                GenuineIntel
+  Model name:             Intel(R) N100
+    CPU family:           6
+    Model:                190
+    Thread(s) per core:   1
+    Core(s) per socket:   4
+    Socket(s):            1
+    Stepping:             0
+    CPU(s) scaling MHz:   84%
+    CPU max MHz:          3400,0000
+    CPU min MHz:          700,0000
+```
+
+#### Estructura de carpetas
+Dentro del servidor la estructura de carpetas será la siguiente:
+
+```
+XcelMerger/
+│
+├── common/  # Archivos usados por todos los servicios. Estos archivos son volúmenes usados por los contenedores Docker
+│   ├── logging_config.py
+│   └── settings.py
+│
+├── auth/
+│   └──.env  # Las variables de entorno y secretos usados por el contenedor
+│
+├── frontend/
+│   └──.env
+├── docker-compose.yml
+```
+
+El archivo `docker-compose.yml` del servidor difiere ligéramente del archivo que tenemos en local para el desarrollo del proyecto ya que el docker-compose del servidor descarga las imágenes de cada servicio alojadas en el **DockerHub**, no las construye.
+
+`docker-compose.yml`
+```yml
+services:
+  auth:
+    image: sertemo/xcelmerger:auth
+    env_file:
+      - ./auth/.env
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./logs:/app/logs
+      - ./common:/app/common
+    container_name: auth_container
+    networks:
+      - xm_network
+    restart: unless-stopped
+
+  frontend:
+    image: sertemo/xcelmerger:frontend
+    env_file:
+      - ./frontend/.env
+    ports:
+      - "5050:5050"
+    volumes:
+      - ./logs:/app/logs
+      - ./common:/app/common
+    container_name: frontend_container
+    networks:
+      - xm_network
+    restart: unless-stopped
+
+networks:
+  xm_network:
+    driver: bridge
+
+```
+
+### CD (Integración continua)
+Se configura un workflow para levantar la red automáticamente en el servidor con cada `push` a la rama `main`.
+
+Los trabajos realizados son:
+- login en mi **DockerHub**
+- Creación de las imágenes de cada servicio y push al Hub
+- Copia de los archivos comunes a la carpeta del proyecto dentro del servidor mediante **SCP**.
+- Construcción de los contenedores e inicialización de la red con docker-compose dentro del servidor mediante **SSH**.
+- Limpieza de imágenes antiguas.
+
+El archivo que realiza dichas tareas es el siguiente:
+
+`deploy,yml`
+```yml
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v3
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Login to DockerHub 
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+    - name: Build and push auth image
+      uses: docker/build-push-action@v5
+      with:
+        context: ./services/auth
+        push: true
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/xcelmerger:auth
+
+    - name: Build and push frontend image
+      uses: docker/build-push-action@v5
+      with:
+        context: ./services/frontend
+        push: true
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/xcelmerger:frontend
+
+    - name: Copy common folder to server
+      uses: appleboy/scp-action@v0.1.7
+      with:
+        host: ${{ secrets.SERVER_SSH_HOST }}
+        username: ${{ secrets.SERVER_SSH_USER }}
+        password: ${{ secrets.SERVER_SSH_KEY }}
+        port: ${{ secrets.SERVER_SSH_PORT }}
+        source: "common/*"
+        target: "${{ secrets.SERVER_PROJECT_PATH }}"
+        debug: true
+
+    - name: Deploy to server
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.SERVER_SSH_HOST }}
+        username: ${{ secrets.SERVER_SSH_USER }}
+        password: ${{ secrets.SERVER_SSH_KEY }}
+        port: ${{ secrets.SERVER_SSH_PORT }}
+        script: |
+          source ~/.bashrc  # Para que las rutas estén en el path
+          cd ${{ secrets.SERVER_PROJECT_PATH }}
+          /usr/libexec/docker/cli-plugins/docker-compose pull
+          /usr/libexec/docker/cli-plugins/docker-compose up -d
+
+    - name: Cleanup old images
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.SERVER_SSH_HOST }}
+        username: ${{ secrets.SERVER_SSH_USER }}
+        password: ${{ secrets.SERVER_SSH_KEY }}
+        port: ${{ secrets.SERVER_SSH_PORT }}
+        script: |
+          docker image prune -f
+```
+
+
 ### https y certificado SSL
+Se describirán los pasos realizados para obtener un certificado SSL renovable automáticamente de cara a utilizar el protocolo https.
+
+### URL
+La URL para las pruebas es [esta](http://trymlmodels.com:5050).
 
 
 ## Tecnologías
