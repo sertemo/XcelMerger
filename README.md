@@ -4,6 +4,7 @@ Limpiar y unificar documentos en una única base de datos
 ### v0.1.0
 
 ![Tests](https://github.com/sertemo/XcelMerger/actions/workflows/tests.yml/badge.svg)
+[![codecov](https://codecov.io/gh/sertemo/XcelMerger/graph/badge.svg?token=IV1Z61N298)](https://codecov.io/gh/sertemo/XcelMerger)
 ![Dependabot](https://img.shields.io/badge/dependabot-enabled-blue.svg?logo=dependabot)
 ![GitHub](https://img.shields.io/github/license/sertemo/XcelMerger)
 
@@ -58,7 +59,7 @@ XcelMerger/
 ├── services/  # Aquí estarán todos los servicios. Cada uno es un proyecto independiente
 │   ├── auth/
 │   │   ├── Dockerfile
-│   │   ├── .env  # 
+│   │   ├── .env  # Variables de entorno y secret keys usadas en auth
 │   │   ├── src/  # Código fuente del servicio
 │   │   │   ├── __init__.py
 │   │   │   └── main.py
@@ -68,7 +69,7 @@ XcelMerger/
 │   │
 │   └─── frontend/
 │        ├── Dockerfile
-│        ├── .env
+│        ├── .env  # Variables de entorno y secret keys usadas en frontend
 │        ├── src/
 │        │   ├── __init__.py
 │        │   └── app.py
@@ -81,10 +82,13 @@ XcelMerger/
 ├── docker-compose.yml
 └── pyproject.toml
 ```
-### common
-### servicios
 
 ## Metodología
+
+## Unitesting
+### CI (Integración continua)
+
+
 
 ## Despliegue
 ### Servidor
@@ -167,7 +171,7 @@ networks:
 
 ```
 
-### CD (Integración continua)
+### CD (Despliegue continuo)
 Se configura un workflow para levantar la red automáticamente en el servidor con cada `push` a la rama `main`.
 
 Los trabajos realizados son:

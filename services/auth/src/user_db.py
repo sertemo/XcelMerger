@@ -276,7 +276,11 @@ class SQLManager:
             c.execute(consulta, (*nuevos_valores, valor_campo_buscado))
 
 
+# Inicializamos el administrador de la base de datos
+
 userdb_manager = SQLManager(nombre_tabla="users", db_filename=DB_NAME)
+
+# Creamos la tabla
 
 SQLManager.create_table(
     db_filename=DB_NAME,
