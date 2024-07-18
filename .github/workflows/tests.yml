@@ -121,7 +121,6 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-
       - name: Cache poetry
         uses: actions/cache@v4
         with:
@@ -129,7 +128,6 @@ jobs:
             ~/.cache/pypoetry
             ~/.virtualenvs
           key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
-
       - name: Install dependencies
         env:
           PYTHONPATH: ${{ github.workspace }}
@@ -137,14 +135,10 @@ jobs:
           python -m pip install --upgrade pip
           pip install poetry
           poetry install --no-root
-
         - name: Create logs directory  # Para que no me de error el logger
           run: mkdir -p logs
-
       - name: Run Pytest
-        run: poetry run pytest --cov=src
-
-      
+        run: poetry run pytest --cov=src      
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v4.0.1
         with:
