@@ -1,5 +1,5 @@
 # XcelMerger
-**Desafío** final de Bootcamp Data Science
+**Desafío** final de Bootcamp Data Science para **AIPOWER**
 Limpiar y unificar documentos en una única base de datos
 ### v0.1.0
 
@@ -8,21 +8,47 @@ Limpiar y unificar documentos en una única base de datos
 ![Dependabot](https://img.shields.io/badge/dependabot-enabled-blue.svg?logo=dependabot)
 ![GitHub](https://img.shields.io/github/license/sertemo/XcelMerger)
 
+---
 
-## Antecedentes del proyecto
+## Índice
+
+1. [Antecedentes del proyecto](#1-antecedentes-del-proyecto)
+2. [Participantes](#2-participantes)
+3. [Descripción del reto](#3-descripción-del-reto)
+   - [3.1- Objetivo del reto](#31--objetivo-del-reto)
+   - [3.2- Criterios de evaluación](#32--criterios-de-evaluación)
+4. [Estructura del proyecto](#4-estructura-del-proyecto)
+5. [Metodología](#5-metodología)
+6. [Unitesting](#6-unittesting)
+   - [6.1- CI (Integración continua)](#61--ci-integración-continua)
+7. [Despliegue](#7-despliegue)
+   - [7.1- Servidor](#71--servidor)
+     - [7.1.1- Datos técnicos](#711--datos-técnicos)
+     - [7.1.2- Estructura de carpetas](#712--estructura-de-carpetas)
+   - [7.2- CD (Despliegue continuo)](#72--cd-despliegue-continuo)
+   - [7.3- https y certificado SSL](#73--https-y-certificado-ssl)
+   - [7.4- URL](#74--url)
+8. [Tecnologías](#8-tecnologías)
+9. [Licencia](#9-licencia)
+
+---
+
+## 1- Antecedentes del proyecto
 Tras finalizar el Bootcamp en Data Science de la Cámara de Comercio de Bilbao, ésta nos propuso participar en un desafío o reto (equivalente a un trabajo final de master) con la intención de poner en práctica todos los conocimientos adquiridos.
 
 Carlos, Afonso y yo aceptamos el reto con la condición de realizarlo en equipo. La Cámara de comercio se encargaría de buscarnos un reto.
 
 Tras varias semanas de espera, C2B se puso en contacto con nosotros describiendo las bases del reto que se describen a continuación.
 
-## Participantes
+## 2- Participantes
 - Carlos García - carlosalberto8717@gmail.com
 - Afonso Teixeira - afonsoteixeirasilva@gmail.com
 - Sergio Tejedor - tejedor.moreno@gmail.com
 
-## Descripción del reto
-### Objetivo del reto
+## 3- Descripción del reto
+El 11/07/2024 tuvimos la primera toma de contacto mediante videoconferencia con el que será el tutor de nuestro proyecto, [Miguel Ramos](miguel@thegoodriders.com) perteneciente a la empresa [AIPower](http://aipower.ai/).
+
+### 3.1- Objetivo del reto
 El objetivo de este reto es desarrollar una solución de data science que permita unificar,
 normalizar, limpiar y completar nuestra base de datos de empresas y contactos. Esta
 solución debe:
@@ -39,7 +65,7 @@ utilizando técnicas avanzadas de deduplicación.
 5. **Relleno de Datos Faltantes**: Completar datos obligatorios faltantes como CIF,
 correos electrónicos, etc., mediante web scraping de fuentes confiables.
 
-### Criterios de evaluación
+### 3.2- Criterios de evaluación
 Exactitud y Precisión: Efectividad en la corrección y normalización de datos.
 - **Eficiencia**: Tiempo y recursos utilizados para procesar los datos.
 - **Escalabilidad**: Capacidad para manejar grandes volúmenes de datos y nuevas
@@ -48,7 +74,7 @@ fuentes de información.
 para reproducir los resultados.
 
 
-## Estructura del proyecto
+## 4- Estructura del proyecto
 ```
 XcelMerger/
 │
@@ -83,16 +109,16 @@ XcelMerger/
 └── pyproject.toml
 ```
 
-## Metodología
+## 5- Metodología
 
-## Unitesting
-### CI (Integración continua)
+## 6- Unitesting
+### 6.1- CI (Integración continua)
 
 
 
-## Despliegue
-### Servidor
-#### Datos técnicos
+## 7- Despliegue
+### 7.1- Servidor
+#### 7.1.1- Datos técnicos
 Para las pruebas de despliegue, se desplegará el proyecto en mi servidor casero. Se trata de un mini ordenador Beelink con las siguientes características:
 ```sh
 Architecture:             x86_64
@@ -114,7 +140,7 @@ Vendor ID:                GenuineIntel
     CPU min MHz:          700,0000
 ```
 
-#### Estructura de carpetas
+#### 7.1.2- Estructura de carpetas
 Dentro del servidor la estructura de carpetas será la siguiente:
 
 ```
@@ -171,7 +197,7 @@ networks:
 
 ```
 
-### CD (Despliegue continuo)
+### 7.2- CD (Despliegue continuo)
 Se configura un workflow para levantar la red automáticamente en el servidor con cada `push` a la rama `main`.
 
 Los trabajos realizados son:
@@ -262,14 +288,14 @@ jobs:
 ```
 
 
-### https y certificado SSL
+### 7.3- https y certificado SSL
 Se describirán los pasos realizados para obtener un certificado SSL renovable automáticamente de cara a utilizar el protocolo https.
 
-### URL
+### 7.4- URL
 La URL para las pruebas es [esta](http://trymlmodels.com:5050).
 
 
-## Tecnologías
+## 8- Tecnologías
 ![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)
 ![Poetry](https://img.shields.io/badge/Poetry-60A5FA?style=for-the-badge&logo=python&logoColor=white)
 ![Flask](https://img.shields.io/badge/flask-%23000.svg?style=for-the-badge&logo=flask&logoColor=white)
@@ -278,7 +304,7 @@ La URL para las pruebas es [esta](http://trymlmodels.com:5050).
 ![JavaScript](https://img.shields.io/badge/javascript-%23F7DF1E.svg?style=for-the-badge&logo=javascript&logoColor=black)
 
 
-## Licencia
+## 9- Licencia
 Copyright 2024 Carlos García, Afonso Teixeira, Sergio Tejedor
 
 Licensed under the Apache License, Version 2.0 (the "License");

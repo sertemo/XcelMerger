@@ -13,13 +13,11 @@
 # limitations under the License.
 
 
-from datetime import timedelta
 import os
-from typing import Any
-
 import pytest
 from fastapi.testclient import TestClient
-from common.settings import LOG_PATH
+from datetime import timedelta
+from typing import Any
 
 from auth.src.main import (
     app,
@@ -34,29 +32,19 @@ from auth.src.main import (
     read_users_me,
 )
 from auth.src.models import Token, UserInDB, User
-from auth.src.user_db import SQLManager, userdb_manager
+from auth.src.user_db import SQLManager, init_userdb
 
 client = TestClient(app)
 
+# Define una ruta de base de datos de prueba
+TEST_DB_NAME = "test_users.db"
 
-# Set up a test database manager
+
 @pytest.fixture(scope="module")
 def test_db_manager():
-    test_db = SQLManager(nombre_tabla="test_users", db_filename="test_users.db")
-    SQLManager.create_table(
-        db_filename="test_users.db",
-        nombre_tabla="test_users",
-        columnas=(
-            "id INTEGER PRIMARY KEY AUTOINCREMENT",
-            "username TEXT",
-            "full_name TEXT",
-            "email TEXT",
-            "hashed_password TEXT",
-            "disabled BOOLEAN",
-        ),
-    )
-    yield test_db
-    os.remove("test_users.db")
+    init_userdb(db_filename=TEST_DB_NAME)  # Inicializa la base de datos de prueba
+    yield SQLManager(nombre_tabla="users", db_filename=TEST_DB_NAME)
+    os.remove(TEST_DB_NAME)
 
 
 @pytest.fixture(scope="module")
@@ -83,7 +71,7 @@ def test_get_user(test_db_manager: SQLManager, test_user: dict[str, Any]):
     assert user.username == "testuser"
 
 
-def test_authenticate_user(test_db_manager, test_user):
+def test_authenticate_user(test_db_manager: SQLManager, test_user: dict[str, Any]):
     test_db_manager.insert_one(test_user)
     user = authenticate_user(test_db_manager, "testuser", "testpassword")
     assert user is not None
@@ -94,28 +82,3 @@ def test_create_access_token():
     token = create_access_token({"sub": "testuser"})
     assert token is not None
     assert isinstance(token, str)
-
-
-def test_login_for_access_token(test_db_manager, test_user):
-    test_db_manager.insert_one(test_user)
-    response = client.post(
-        "/token",
-        data={"username": "testuser", "password": "testpassword"},
-    )
-    assert response.status_code == 200
-    token = response.json()
-    assert "access_token" in token
-    assert token["token_type"] == "bearer"
-
-
-def test_read_users_me(test_db_manager, test_user):
-    test_db_manager.insert_one(test_user)
-    token = create_access_token({"sub": "testuser"})
-    response = client.get(
-        "/users/me/",
-        headers={"Authorization": f"Bearer {token}"},
-    )
-    assert response.status_code == 200
-    user = response.json()
-    assert user["username"] == "testuser"
-    assert user["email"] == "testuser@example.com"

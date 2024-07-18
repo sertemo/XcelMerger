@@ -12,6 +12,7 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License..
 
+from contextlib import asynccontextmanager
 from datetime import datetime, timedelta, timezone
 from typing import Optional, Annotated, Union
 import os
@@ -24,17 +25,34 @@ import jwt
 from jwt.exceptions import InvalidTokenError
 from passlib.context import CryptContext
 
-from common.settings import ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES, FRONTEND_SERVICE_URL
+from common.logging_config import logger
+from common.settings import (
+    ALGORITHM,
+    ACCESS_TOKEN_EXPIRE_MINUTES,
+    FRONTEND_SERVICE_URL,
+    USERSDB_NAME,
+)
 from .models import Token, TokenData, User, UserInDB
-from .user_db import userdb_manager, SQLManager
+from .user_db import init_userdb, SQLManager, get_userdb_manager
 
-
+# Cargamos variables de entorno
 load_dotenv()
 
 # Secret key to encode and decode JWT tokens
 SECRET_KEY = os.getenv("SECRET_KEY")
 
-app = FastAPI()
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Inicializamos la base de datos
+    init_userdb()
+    logger.info(f"Base de datos '{USERSDB_NAME}' inicializada correctamente")
+    yield
+    os.remove(USERSDB_NAME)
+    logger.info("Base de datos '{USERSDB_NAME}' eliminada correctamente")
+
+
+app = FastAPI(lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
@@ -44,7 +62,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Inicializamos el contexto de encriptación
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+# Inicializamos el esquema de autenticación
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 
@@ -184,7 +204,7 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
     except InvalidTokenError:
         raise credentials_exception
 
-    user = get_user(userdb_manager, username=token_data.username)
+    user = get_user(get_userdb_manager(), username=token_data.username)
     if user is None:
         raise credentials_exception
     return user
@@ -202,7 +222,9 @@ async def get_current_active_user(
 async def login_for_access_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
 ) -> Token:
-    user = authenticate_user(userdb_manager, form_data.username, form_data.password)
+    user = authenticate_user(
+        get_userdb_manager(), form_data.username, form_data.password
+    )
     if user is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

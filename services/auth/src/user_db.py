@@ -19,10 +19,10 @@ from typing import Any, Optional
 
 from dotenv import load_dotenv
 
+from common.settings import USERSDB_NAME
+
 
 load_dotenv()
-
-DB_NAME = "users.db"
 
 
 class SQLContext:
@@ -47,7 +47,7 @@ class SQLManager:
     con sqlite
     """
 
-    def __init__(self, *, nombre_tabla: str, db_filename: str = DB_NAME) -> None:
+    def __init__(self, *, nombre_tabla: str, db_filename: str = USERSDB_NAME) -> None:
         self.db_filename = db_filename
         self.tabla = nombre_tabla
 
@@ -276,41 +276,66 @@ class SQLManager:
             c.execute(consulta, (*nuevos_valores, valor_campo_buscado))
 
 
-# Inicializamos el administrador de la base de datos
+# Creamos función para inicializar db
 
-userdb_manager = SQLManager(nombre_tabla="users", db_filename=DB_NAME)
 
-# Creamos la tabla
+def init_userdb(table_name: str = "users", db_filename: str = USERSDB_NAME) -> None:
+    """Inicializa la base de datos,
+    crea una tabla de usuarios, un usuario
+    admin y un usuario normal.
 
-SQLManager.create_table(
-    db_filename=DB_NAME,
-    nombre_tabla="users",
-    columnas=(
-        "id INTEGER PRIMARY KEY AUTOINCREMENT",
-        "username TEXT",
-        "full_name TEXT",
-        "email TEXT",
-        "hashed_password TEXT",
-        "disabled BOOLEAN",
-    ),
-)
+    Returns
+    -------
+    SQLManager
+        _description_
+    """
+    userdb_manager = SQLManager(nombre_tabla=table_name, db_filename=db_filename)
 
-userdb_manager.insert_one(
-    {
-        "username": "admin",
-        "full_name": "Usuario Admin para pruebas",
-        "email": "tejedor.moreno@gmail.com",
-        "hashed_password": os.getenv("ADMIN_PASS"),
-        "disabled": False,
-    }
-)
+    # Creamos la tabla
 
-userdb_manager.insert_one(
-    {
-        "username": "carlos",
-        "full_name": "carlosalberto8717@gmail.com",
-        "email": "carlos",
-        "hashed_password": os.getenv("ADMIN_PASS"),
-        "disabled": False,
-    }
-)
+    SQLManager.create_table(
+        db_filename=db_filename,
+        nombre_tabla=table_name,
+        columnas=(
+            "id INTEGER PRIMARY KEY AUTOINCREMENT",
+            "username TEXT",
+            "full_name TEXT",
+            "email TEXT",
+            "hashed_password TEXT",
+            "disabled BOOLEAN",
+        ),
+    )
+
+    userdb_manager.insert_one(
+        {
+            "username": "admin",
+            "full_name": "Usuario Admin para pruebas",
+            "email": "tejedor.moreno@gmail.com",
+            "hashed_password": os.getenv("ADMIN_PASS"),
+            "disabled": False,
+        }
+    )
+
+    userdb_manager.insert_one(
+        {
+            "username": "carlos",
+            "full_name": "carlosalberto8717@gmail.com",
+            "email": "carlos",
+            "hashed_password": os.getenv("ADMIN_PASS"),
+            "disabled": False,
+        }
+    )
+
+
+def get_userdb_manager(
+    table_name: str = "users", db_filename: str = USERSDB_NAME
+) -> SQLManager:
+    """Devuelve el manager para gestionar la tabla users
+    de la base de datos users.db
+
+    Returns
+    -------
+    SQLManager
+        _description_
+    """
+    return SQLManager(nombre_tabla=table_name, db_filename=db_filename)
