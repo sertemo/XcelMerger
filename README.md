@@ -4,7 +4,7 @@ Limpiar y unificar documentos en una única base de datos
 ### v0.1.0
 
 ![Tests](https://github.com/sertemo/XcelMerger/actions/workflows/tests.yml/badge.svg)
-[![codecov](https://codecov.io/gh/sertemo/XcelMerger/graph/badge.svg?token=IV1Z61N298)](https://codecov.io/gh/sertemo/XcelMerger)
+[![codecov](https://codecov.io/gh/sertemo/XcelMerger/branch/develop/graph/badge.svg?token=IV1Z61N298)](https://codecov.io/gh/sertemo/XcelMerger)
 ![Dependabot](https://img.shields.io/badge/dependabot-enabled-blue.svg?logo=dependabot)
 ![GitHub](https://img.shields.io/github/license/sertemo/XcelMerger)
 
