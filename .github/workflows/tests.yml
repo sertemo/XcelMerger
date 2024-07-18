@@ -142,6 +142,9 @@ jobs:
         run: mkdir -p logs
 
       - name: Run Pytest
+        env:  # Variables de entorno de los .env
+          SECRET_KEY: ${{ secrets.ENV_SECRET_KEY }}
+          ALGORITHM: ${{ secrets.ENV_ALGORITHM }}
         run: poetry run pytest --cov=src
 
       - name: Upload coverage reports to Codecov
