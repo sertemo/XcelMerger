@@ -65,6 +65,8 @@ addopts = [
    "--cov=services/auth/src",
    "--cov=services/frontend/src",
    "--cov-report=term-missing",
-   "--cov-report=html"
+   "--cov-report=html:htmlcov",
+   "--cov-report=html",
+   "--cov-report=xml"
 ]
 filterwarnings = "ignore::DeprecationWarning"
