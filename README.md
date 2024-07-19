@@ -30,8 +30,9 @@ Limpiar y unificar documentos en una única base de datos
    - [7.2- CD (Despliegue continuo)](#72--cd-despliegue-continuo)
    - [7.3- https y certificado SSL](#73--https-y-certificado-ssl)
    - [7.4- URL](#74--url)
-8. [Tecnologías](#8-tecnologías)
-9. [Licencia](#9-licencia)
+8. [Versiones](#8--versiones)
+9. [Tecnologías](#9-tecnologías)
+10. [Licencia](#10-licencia)
 
 ---
 
@@ -299,8 +300,10 @@ Se describirán los pasos realizados para obtener un certificado SSL renovable a
 ### 7.4- URL
 La URL para las pruebas es [esta](http://trymlmodels.com:5050).
 
+## 8- Versiones
+- 0.1.0: versión inicial del proyecto
 
-## 8- Tecnologías
+## 9- Tecnologías
 ![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)
 ![Poetry](https://img.shields.io/badge/Poetry-60A5FA?style=for-the-badge&logo=python&logoColor=white)
 ![Flask](https://img.shields.io/badge/flask-%23000.svg?style=for-the-badge&logo=flask&logoColor=white)
@@ -309,7 +312,7 @@ La URL para las pruebas es [esta](http://trymlmodels.com:5050).
 ![JavaScript](https://img.shields.io/badge/javascript-%23F7DF1E.svg?style=for-the-badge&logo=javascript&logoColor=black)
 
 
-## 9- Licencia
+## 10- Licencia
 Copyright 2024 Carlos García, Afonso Teixeira, Sergio Tejedor
 
 Licensed under the Apache License, Version 2.0 (the "License");
