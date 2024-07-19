@@ -209,7 +209,7 @@ Los trabajos realizados son:
 
 El archivo que realiza dichas tareas es el siguiente:
 
-`deploy,yml`
+`deploy.yml`
 ```yml
 name: CI/CD Pipeline
 
