@@ -79,6 +79,7 @@ para reproducir los resultados.
 
 ## 4- Estructura del proyecto
 ### 4.1- Arquitectura
+![alt text](assets/img/Arquitectura.jpg)
 
 ### 4.2- Estructura de carpetas y archivos
 ```
