@@ -18,6 +18,8 @@ Limpiar y unificar documentos en una única base de datos
    - [3.1- Objetivo del reto](#31--objetivo-del-reto)
    - [3.2- Criterios de evaluación](#32--criterios-de-evaluación)
 4. [Estructura del proyecto](#4-estructura-del-proyecto)
+   - [4.1- Arquitectura](#41--arquitectura)
+   - [4.2- Estructura de carpetas y archivos](#42--estructura-de-carpetas-y-archivos)
 5. [Metodología](#5-metodología)
 6. [Unitesting](#6-unittesting)
    - [6.1- CI (Integración continua)](#61--ci-integración-continua)
@@ -41,12 +43,12 @@ Carlos, Afonso y yo aceptamos el reto con la condición de realizarlo en equipo.
 Tras varias semanas de espera, C2B se puso en contacto con nosotros describiendo las bases del reto que se describen a continuación.
 
 ## 2- Participantes
-- Carlos García - carlosalberto8717@gmail.com
-- Afonso Teixeira - afonsoteixeirasilva@gmail.com
+- [Carlos García](https://github.com/cagcruz) - carlosalberto8717@gmail.com
+- [Afonso Teixeira](https://github.com/ATS-data) - afonsoteixeirasilva@gmail.com
 - Sergio Tejedor - tejedor.moreno@gmail.com
 
 ## 3- Descripción del reto
-El 11/07/2024 tuvimos la primera toma de contacto mediante videoconferencia con el que será el tutor de nuestro proyecto, [Miguel Ramos](miguel@thegoodriders.com) perteneciente a la empresa [AIPower](http://aipower.ai/).
+El **11/07/2024** tuvimos la primera toma de contacto mediante videoconferencia con el que será el tutor de nuestro proyecto, [Miguel Ramos](miguel@thegoodriders.com) perteneciente a la empresa [AIPower](http://aipower.ai/).
 
 ### 3.1- Objetivo del reto
 El objetivo de este reto es desarrollar una solución de data science que permita unificar,
@@ -75,6 +77,9 @@ para reproducir los resultados.
 
 
 ## 4- Estructura del proyecto
+### 4.1- Arquitectura
+
+### 4.2- Estructura de carpetas y archivos
 ```
 XcelMerger/
 │
