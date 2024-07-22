@@ -48,16 +48,21 @@ async def lifespan(app: FastAPI):
     # Inicializamos todas las bases de datos al iniciar la aplicación
     init_databases()
     logger.info("Bases de datos inicializadas correctamente")
-    # Agregamos un user admin por defecto a la db de usuarios
-    with users_session() as session:
-        user = db_models.User(
-            username="admin",
-            hashed_password=os.getenv("ADMIN_PASS"),
-            full_name="Usuario Admin para pruebas",
-            email="tejedor.moreno.@gmail.com",
-        )
-        session.add(user)
-    yield
+    try:
+        # Agregamos un user admin por defecto a la db de usuarios
+        with users_session.begin() as session:
+            user = db_models.User(
+                username="admin",
+                hashed_password=os.getenv("ADMIN_PASS"),
+                full_name="Usuario Admin para pruebas",
+                email="tejedor.moreno.@gmail.com",
+            )
+            session.add(user)
+            logger.info(f"User agregado correctamente: {user.username}")
+        yield
+    except Exception as e:
+        logger.error(f"Error al inicializar las bases de datos: {e}")
+        raise
 
 
 app = FastAPI(lifespan=lifespan)

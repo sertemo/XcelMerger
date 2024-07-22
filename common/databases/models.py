@@ -12,7 +12,7 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-from typing import Any
+from typing import Any, Optional
 
 from sqlalchemy import String, Boolean
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
@@ -25,7 +25,7 @@ class Base(DeclarativeBase):
 class User(Base):
     __tablename__ = "users"
 
-    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    id: Mapped[Optional[int]] = mapped_column(primary_key=True, autoincrement=True)
     username: Mapped[str] = mapped_column(String(100))
     full_name: Mapped[str] = mapped_column(String(100), nullable=True)
     hashed_password: Mapped[str] = mapped_column(String(150))
@@ -36,8 +36,9 @@ class User(Base):
         return (
             f"<[User]>(id={self.id}, "
             f"username={self.username}, "
-            f"full_name={self.full_name})"
-            f"email={self.email})"
+            f"full_name={self.full_name}) "
+            f"email={self.email}) "
+            f"hashed_password={self.hashed_password})"
         )
 
     def to_dict(self) -> dict[str, Any]:
