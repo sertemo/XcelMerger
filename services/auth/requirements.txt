@@ -5,3 +5,4 @@ pyjwt
 bcrypt==4.0.1  # Hay un bug con bcrypt y passlib. Forzar esta versión
 passlib[bcrypt]
 python-dotenv
+sqlalchemy

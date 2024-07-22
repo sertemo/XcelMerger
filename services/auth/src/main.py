@@ -30,10 +30,11 @@ from common.settings import (
     ALGORITHM,
     ACCESS_TOKEN_EXPIRE_MINUTES,
     FRONTEND_SERVICE_URL,
-    USERSDB_NAME,
 )
+from common.databases.engines import init_databases, users_session
+import common.databases.models as db_models
 from .models import Token, TokenData, User, UserInDB
-from .user_db import init_userdb, SQLManager, get_userdb_manager
+
 
 # Cargamos variables de entorno
 load_dotenv()
@@ -44,12 +45,19 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Inicializamos la base de datos
-    init_userdb()
-    logger.info(f"Base de datos '{USERSDB_NAME}' inicializada correctamente")
+    # Inicializamos todas las bases de datos al iniciar la aplicación
+    init_databases()
+    logger.info("Bases de datos inicializadas correctamente")
+    # Agregamos un user admin por defecto a la db de usuarios
+    with users_session() as session:
+        user = db_models.User(
+            username="admin",
+            hashed_password=os.getenv("ADMIN_PASS"),
+            full_name="Usuario Admin para pruebas",
+            email="tejedor.moreno.@gmail.com",
+        )
+        session.add(user)
     yield
-    os.remove(USERSDB_NAME)
-    logger.info(f"Base de datos '{USERSDB_NAME}' eliminada correctamente")
 
 
 app = FastAPI(lifespan=lifespan)
@@ -107,7 +115,7 @@ def get_password_hash(password: str) -> str:
     return hashed_password
 
 
-def get_user(db_manager: SQLManager, username: Union[str, None]) -> Optional[UserInDB]:
+def get_user(username: Union[str, None]) -> Optional[UserInDB]:
     """Devuelve el registro entero correspondiente
     al usuario buscando o None si no existe
 
@@ -125,17 +133,20 @@ def get_user(db_manager: SQLManager, username: Union[str, None]) -> Optional[Use
     """
     if username is None:
         return None
-    user_dict = db_manager.find_one_dict(
-        campo_buscado="username", valor_buscado=username
-    )
-    if user_dict is None:
-        return None
-    return UserInDB(**user_dict)
+
+    with users_session.begin() as session:
+        result = (
+            session.query(db_models.User)
+            .filter(db_models.User.username == username)
+            .first()
+        )
+        print(result)
+        if result is None:
+            return None
+        return UserInDB(**result.to_dict())
 
 
-def authenticate_user(
-    db_manager: SQLManager, username: str, password: str
-) -> Optional[UserInDB]:
+def authenticate_user(username: str, password: str) -> Optional[UserInDB]:
     """Autentica un usuario
 
     Parameters
@@ -154,7 +165,7 @@ def authenticate_user(
         None si no es correcto
     """
 
-    user = get_user(db_manager, username)
+    user = get_user(username)
     if not user:
         return None
     if not verify_password(password, user.hashed_password):
@@ -204,7 +215,7 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
     except InvalidTokenError:
         raise credentials_exception
 
-    user = get_user(get_userdb_manager(), username=token_data.username)
+    user = get_user(username=token_data.username)
     if user is None:
         raise credentials_exception
     return user
@@ -222,9 +233,7 @@ async def get_current_active_user(
 async def login_for_access_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
 ) -> Token:
-    user = authenticate_user(
-        get_userdb_manager(), form_data.username, form_data.password
-    )
+    user = authenticate_user(form_data.username, form_data.password)
     if user is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -244,3 +253,7 @@ async def read_users_me(
     current_user: Annotated[User, Depends(get_current_active_user)],
 ):
     return current_user
+
+
+if __name__ == "__main__":
+    pass

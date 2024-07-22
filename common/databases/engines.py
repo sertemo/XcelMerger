@@ -12,28 +12,22 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-import os
 
-from pathlib import Path
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 
-from dotenv import load_dotenv
+from common.databases.models import Base
+from common.settings import USER_DB_URL
 
-load_dotenv()
 
-# Log
-FOLDER_LOGS = Path("logs")
-LOG_FILE = "xcelmerger.log"
-LOG_PATH = FOLDER_LOGS / LOG_FILE
+users_engine = create_engine(USER_DB_URL, pool_size=10, max_overflow=20, echo=True)
+users_session = sessionmaker(autocommit=False, autoflush=False, bind=users_engine)
 
-# Databases
-USER_DB_URL = os.getenv("USER_DB_URL", "")
-FETCH_DB_URL = os.getenv("FETCH_DB_URL", "")
 
-# Servicios
-# Auth
-AUTH_SERVICE_URL = "http://auth:8000"
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 3
+def init_databases():
+    """Función que inicia todas las bases de datos
+    creando las tablas correspondientes"""
+    # import common.databases.models  # Importa los modelos aquí para que Base los reconozca
 
-# Frontend
-FRONTEND_SERVICE_URL = "http://frontend:5050"
+    # Creamos todas las bases de datos y sus tablas
+    Base.metadata.create_all(bind=users_engine)
