@@ -586,10 +586,6 @@ La URL para las pruebas es [esta](http://trymlmodels.com:5050).
 ![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)
 
 
-Este proyecto utiliza SQLAlchemy para la gestión de la base de datos...
-
-
-
 ## 10- Licencia
 Copyright 2024 Carlos García, Afonso Teixeira, Sergio Tejedor
 
