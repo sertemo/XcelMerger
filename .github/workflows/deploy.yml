@@ -59,7 +59,7 @@ jobs:
         port: ${{ secrets.SERVER_SSH_PORT }}
         script: |
           echo "USER_DB_URL=${{ secrets.USER_DB_URL }}" > ${{ secrets.SERVER_PROJECT_PATH }}/common/.env
-          # Agrega aquí más variables de entorno según sea necesario
+          # TODO Agregar todas las variables de entorno
 
     - name: Deploy to server
       uses: appleboy/ssh-action@v1.0.3

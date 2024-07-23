@@ -148,6 +148,7 @@ jobs:
         env:  # Variables de entorno de los .env
           SECRET_KEY: ${{ secrets.ENV_SECRET_KEY }}
           ALGORITHM: ${{ secrets.ENV_ALGORITHM }}
+          USER_DB_URL: ${{ secrets.ENV_USER_DB_URL }}
         run: poetry run pytest
 
       - name: Upload coverage reports to Codecov
