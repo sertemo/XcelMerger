@@ -7,10 +7,11 @@ services:
       - ./logs:/app/logs
     ports:
       - "8000:8000"
-    env_file: ./services/auth/.env
+    env_file: ./common/.env
     networks:
       - xm_network
     restart: unless-stopped
+
 
   frontend:
     build: ./services/frontend
@@ -20,10 +21,32 @@ services:
       - ./logs:/app/logs
     ports:
       - "5050:5050"
-    env_file: ./services/frontend/.env
+    env_file: ./common/.env
     networks:
       - xm_network
     restart: unless-stopped
 
+
+  postgres_fetch_db:
+    image: postgres:latest
+    container_name: fetch_db_container
+    environment:
+      POSTGRES_USER: ${FETCH_DB_USER}
+      POSTGRES_PASSWORD: ${FETCH_DB_PASSWORD}
+      POSTGRES_DB: ${FETCH_DB_NAME}
+    ports:
+      - "5432:5432"
+    env_file: ./common/.env
+    volumes:
+      - fetch_db_data:/var/lib/postgresql/data
+    networks:
+      - xm_network
+    restart: unless-stopped
+
+
 networks:
   xm_network:
+
+
+volumes:
+  fetch_db_data:

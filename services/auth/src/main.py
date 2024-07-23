@@ -37,7 +37,7 @@ from .models import Token, TokenData, User, UserInDB
 
 
 # Cargamos variables de entorno
-load_dotenv()
+load_dotenv(dotenv_path="./common/.env")
 
 # Secret key to encode and decode JWT tokens
 SECRET_KEY = os.getenv("SECRET_KEY")

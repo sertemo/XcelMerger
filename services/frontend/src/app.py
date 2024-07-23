@@ -22,7 +22,7 @@ from common.logging_config import logger
 from common.settings import AUTH_SERVICE_URL
 
 
-load_dotenv()
+load_dotenv(dotenv_path="./common/.env")
 
 app = Flask(__name__)
 app.secret_key = os.getenv("FLASK_SECRET_KEY")

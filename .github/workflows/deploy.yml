@@ -50,7 +50,7 @@ jobs:
         target: "${{ secrets.SERVER_PROJECT_PATH }}"
         debug: true
 
-    - name: Create common .env file on server  # TODO Agregar todas las URL de base de datos
+    - name: Create common .env file on server  # TODO Agregar todos los datos de entorno
       uses: appleboy/ssh-action@v1.0.3
       with:
         host: ${{ secrets.SERVER_SSH_HOST }}

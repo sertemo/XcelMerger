@@ -13,7 +13,6 @@
 #   limitations under the License.
 
 import os
-
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -26,8 +25,17 @@ LOG_FILE = "xcelmerger.log"
 LOG_PATH = FOLDER_LOGS / LOG_FILE
 
 # Databases
-USER_DB_URL = os.getenv("USER_DB_URL", "")
-FETCH_DB_URL = os.getenv("FETCH_DB_URL", "")
+# Users
+USER_DB_URL = os.getenv("USER_DB_URL", " ")
+
+# Fetch
+FETCH_DB_USER = os.getenv("FETCH_DB_USER")
+FETCH_DB_PASSWORD = os.getenv("FETCH_DB_PASSWORD")
+FETCH_DB_HOST = os.getenv("FETCH_DB_HOST")
+FETCH_DB_NAME = os.getenv("FETCH_DB_NAME")
+FETCH_DB_URL = (
+    f"postgresql://{FETCH_DB_USER}:{FETCH_DB_PASSWORD}@{FETCH_DB_HOST}/{FETCH_DB_NAME}"
+)
 
 # Servicios
 # Auth
