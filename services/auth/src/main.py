@@ -24,6 +24,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import jwt
 from jwt.exceptions import InvalidTokenError
 from passlib.context import CryptContext
+from sqlalchemy.orm import Session
 
 from common.logging_config import logger
 from common.settings import (
@@ -120,16 +121,19 @@ def get_password_hash(password: str) -> str:
     return hashed_password
 
 
-def get_user(username: Union[str, None]) -> Optional[UserInDB]:
-    """Devuelve el registro entero correspondiente
-    al usuario buscando o None si no existe
+def get_user(
+    username: Union[str, None],
+    session: Session,
+) -> Optional[UserInDB]:
+    """Devuelve un usuario dado su username o None
+    si el usuario no se encuentra en la base de datos
 
     Parameters
     ----------
-    db_manager : SQLManager
+    username : Union[str, None]
         _description_
-    username : str
-        _description_
+    session : Session
+        La sesión abierta a la base de datos
 
     Returns
     -------
@@ -139,38 +143,39 @@ def get_user(username: Union[str, None]) -> Optional[UserInDB]:
     if username is None:
         return None
 
-    with users_session.begin() as session:
-        result = (
-            session.query(db_models.User)
-            .filter(db_models.User.username == username)
-            .first()
-        )
-        print(result)
-        if result is None:
-            return None
-        return UserInDB(**result.to_dict())
+    result: Optional[db_models.User] = (
+        session.query(db_models.User)
+        .filter(db_models.User.username == username)
+        .first()
+    )
+    if result is None:
+        return None
+    return UserInDB(**result.to_dict())
 
 
-def authenticate_user(username: str, password: str) -> Optional[UserInDB]:
-    """Autentica un usuario
+def authenticate_user(
+    username: str, password: str, session: Session
+) -> Optional[UserInDB]:
+    """Autentica un usuario:
+    - Extrae el usuario username de la base de datos. Si no existe devuelve None
+    - verifica la contraseña proporcionada con la contraseña hasheada del usuario
 
     Parameters
     ----------
-    db_manager : SQLManager
-        _description_
     username : str
         _description_
     password : str
         _description_
+    session_type : sessionmaker
+        _description_
 
     Returns
     -------
-    Union[UserInDB, None]
-        Devuelve el usuario si es correcto o
-        None si no es correcto
+    Optional[UserInDB]
+        _description_
     """
 
-    user = get_user(username)
+    user = get_user(username, session)
     if not user:
         return None
     if not verify_password(password, user.hashed_password):
@@ -220,9 +225,11 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
     except InvalidTokenError:
         raise credentials_exception
 
-    user = get_user(username=token_data.username)
-    if user is None:
-        raise credentials_exception
+    # Abrimos una sesión con la base de datos de users
+    with users_session.begin() as session:
+        user = get_user(username=token_data.username, session=session)
+        if user is None:
+            raise credentials_exception
     return user
 
 
@@ -238,18 +245,22 @@ async def get_current_active_user(
 async def login_for_access_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
 ) -> Token:
-    user = authenticate_user(form_data.username, form_data.password)
-    if user is None:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Contraseña o usuarios incorrectos",
-            headers={"WWW-Authenticate": "Bearer"},
+    # Abrimos sesiones con la base de datos de users
+    with users_session.begin() as session:
+        user = authenticate_user(
+            form_data.username, form_data.password, session=session
         )
-    usuario: str = user.username
-    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = create_access_token(
-        data={"sub": str(usuario)}, expires_delta=access_token_expires
-    )
+        if user is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Contraseña o usuarios incorrectos",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+        usuario: str = user.username
+        access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        access_token = create_access_token(
+            data={"sub": str(usuario)}, expires_delta=access_token_expires
+        )
     return Token(access_token=access_token, token_type="bearer")
 
 
