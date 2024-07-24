@@ -58,7 +58,9 @@ jobs:
         password: ${{ secrets.SERVER_SSH_KEY }}
         port: ${{ secrets.SERVER_SSH_PORT }}
         script: |
-          echo "USER_DB_URL=${{ secrets.USER_DB_URL }}" > ${{ secrets.SERVER_PROJECT_PATH }}/common/.env
+          echo "USER_DB_URL=${{ secrets.ENV_USER_DB_URL }}" >> ${{ secrets.SERVER_PROJECT_PATH }}/common/.env
+          echo "SECRET_KEY=${{ secrets.ENV_SECRET_KEY }}" >> ${{ secrets.SERVER_PROJECT_PATH }}/common/.env
+          echo "FLASK_SECRET_KEY=${{ secrets.ENV_FLASK_SECRET_KEY }}" >> ${{ secrets.SERVER_PROJECT_PATH }}/common/.env
           # TODO Agregar todas las variables de entorno
 
     - name: Deploy to server
