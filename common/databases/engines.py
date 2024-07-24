@@ -21,7 +21,7 @@ from common.settings import USER_DB_URL
 
 
 users_engine = create_engine(USER_DB_URL, pool_size=10, max_overflow=20, echo=True)
-users_session = sessionmaker(autocommit=False, autoflush=False, bind=users_engine)
+Session_users = sessionmaker(autocommit=False, autoflush=False, bind=users_engine)
 
 
 def init_databases():

@@ -32,7 +32,7 @@ from common.settings import (
     ACCESS_TOKEN_EXPIRE_MINUTES,
     FRONTEND_SERVICE_URL,
 )
-from common.databases.engines import init_databases, users_session
+from common.databases.engines import init_databases, Session_users
 import common.databases.models as db_models
 from .models import Token, TokenData, User, UserInDB
 
@@ -51,7 +51,7 @@ async def lifespan(app: FastAPI):
     logger.info("Bases de datos inicializadas correctamente")
     try:
         # Agregamos un user admin por defecto a la db de usuarios
-        with users_session.begin() as session:
+        with Session_users.begin() as session:
             user = db_models.User(
                 username="admin",
                 hashed_password=os.getenv("ADMIN_PASS"),
@@ -226,7 +226,7 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
         raise credentials_exception
 
     # Abrimos una sesión con la base de datos de users
-    with users_session.begin() as session:
+    with Session_users.begin() as session:
         user = get_user(username=token_data.username, session=session)
         if user is None:
             raise credentials_exception
@@ -246,7 +246,7 @@ async def login_for_access_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
 ) -> Token:
     # Abrimos sesiones con la base de datos de users
-    with users_session.begin() as session:
+    with Session_users.begin() as session:
         user = authenticate_user(
             form_data.username, form_data.password, session=session
         )
