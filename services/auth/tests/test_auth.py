@@ -67,12 +67,14 @@ def override_users_session():
     finally:
         session.close()
 
+
 # Sobreescribir el lifespan para evitar la inicialización de la base de datos real
 async def override_lifespan(app):
     try:
         yield
     except Exception as e:
         raise
+
 
 """ def test_login_for_access_token(test_session: Session):
     app.router.lifespan_context = override_lifespan
@@ -100,6 +102,7 @@ async def override_lifespan(app):
     response_data = response.json()
     assert "access_token" in response_data
     assert response_data["token_type"] == "bearer" """
+
 
 def test_authenticate_user_no_user(test_session: Session):
     user = authenticate_user("no_user", "wrongpassword", test_session)

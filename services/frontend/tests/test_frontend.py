@@ -13,5 +13,86 @@
 #   limitations under the License.
 
 
-def test_front():
-    assert True
+import os
+import pytest
+import requests
+from flask import Flask, url_for
+from flask.testing import FlaskClient
+from dotenv import load_dotenv
+from unittest.mock import patch
+
+from frontend.src.app import (
+    app,
+)  # Asegúrate de importar correctamente tu aplicación Flask
+
+load_dotenv(dotenv_path="./common/.env")
+
+
+@pytest.fixture(scope="module")
+def test_client() -> FlaskClient:
+    app.config["TESTING"] = True
+    app.config["WTF_CSRF_ENABLED"] = False
+    app.config["DEBUG"] = False
+    return app.test_client()
+
+
+@patch("requests.post")
+def test_login_success(mock_post, test_client: FlaskClient):
+    # Configurar el mock para devolver una respuesta exitosa
+    mock_post.return_value.status_code = 200
+    mock_post.return_value.json.return_value = {"access_token": "test_token"}
+
+    response = test_client.post(
+        "/login", data={"username": "testuser", "password": "testpassword"}
+    )
+
+    assert response.status_code == 200
+    with test_client.session_transaction() as sess:
+        assert sess["token"] == "test_token"
+        assert sess["username"] == "testuser"
+
+
+@patch("requests.post")
+def test_login_failure(mock_post, test_client: FlaskClient):
+    # Configurar el mock para devolver una respuesta fallida
+    mock_post.return_value.status_code = 401
+
+    response = test_client.post(
+        "/login", data={"username": "wronguser", "password": "wrongpassword"}
+    )
+
+    assert response.status_code == 401
+    assert b"incorrectos" in response.data
+
+
+@patch("requests.get")
+def test_upload_access_granted(mock_get, test_client: FlaskClient):
+    # Configurar el mock para devolver una respuesta exitosa
+    mock_get.return_value.status_code = 200
+
+    with test_client.session_transaction() as sess:
+        sess["token"] = "test_token"
+        sess["username"] = "testuser"
+
+    response = test_client.get("/upload")
+    assert response.status_code == 200
+    assert (
+        b"Carga archivos excels para agregar a la base de datos" in response.data
+    )  # Verifica si el contenido renderizado es el esperado
+
+
+@patch("requests.get")
+def test_upload_access_denied(mock_get, test_client: FlaskClient):
+    # Configurar el mock para devolver una respuesta fallida
+    mock_get.return_value.status_code = 401
+
+    with test_client.session_transaction() as sess:
+        sess["token"] = "expired_token"
+        sess["username"] = "testuser"
+
+    with app.test_request_context():  # Nos aseguramos de que estamos en el contexto de los tests
+        response = test_client.get("/upload")
+        assert (
+            response.status_code == 302
+        )  # Redirigido al login, que está en la routa home (/)
+        assert response.location == "/"
