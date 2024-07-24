@@ -29,7 +29,7 @@ from auth.src.main import (
 )
 from auth.src.models import UserInDB
 from common.databases.models import Base, User
-from common.databases.engines import users_session
+from common.databases.engines import Session_users
 
 DATABASE_URL = "sqlite:///./test.db"
 
