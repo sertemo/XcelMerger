@@ -95,7 +95,7 @@ XcelMerger/
 │   ├── .env  # Variables de entorno, secretos y urls de las bases de datos
 │   └── databases/
 │       ├── engines.py  # Definición de los conectores de las bases de datos
-│       └── models.py  # Definición de todas las tables de las bases de datos
+│       └── models.py  # Definición de todas las tablas de las bases de datos
 │
 ├── services/  # Aquí estarán todos los servicios. Cada uno es un proyecto independiente
 │   ├── auth/
@@ -120,7 +120,7 @@ XcelMerger/
 └── pyproject.toml
 ```
 ### 4.3- Bases de datos
-El proyecto constará de **1 bases de datos permanente** y **3 bases de datos temporales**. 
+El proyecto constará de **1 base de datos permanente** y **3 bases de datos temporales**. 
 
 Las bases de datos se inicializan al comenzar el servicio **auth** empleando para ello el **lifespan** de la app que ofrece FastAPI.
 
@@ -150,20 +150,25 @@ async def lifespan(app: FastAPI):
 ```
 
 #### 4.3.1- Bases de datos temporales
-- **fetch_db** | **PostgresSQL**
+- **fetch_db** | **PostgresSQL** -> 
 En esta base de datos se vuelcan los datos tras la validación preliminar del esquema en el contenedor de validación. Posteriormente el servicio de extracción comparará los valores de fetch_db con los de **unified_db** y extraerá aquellos registros nuevos tras lo cual se eliminará fetch_db.
 
-- **temp_db** | **PostgresSQL**
+- **temp_db** | **PostgreSQL** -> 
 Una vez extraidos los registros únicos y resuelto ciertos conflictos con la base de datos unified_db, los datos a procesar se guardan en temp_db, que es la base de datos sobre la que trabajará el servicio de procesamiento de los datos.
 
-- **users_db** | **SQLite**
+- **users_db** | **SQLite** -> 
 Esta base de datos tiene los registros de los usuarios con acceso a la aplicación. Se crea al iniciarse el servicio auth (ver código más arriba) y se añade un usuario admin. La base de datos se elimina al eliminarse los contendores.
 
 #### 4.3.2- Bases de datos permanentes
-- **unified_db** | **PostgresSQL**
+- **unified_db** | **PostgreSQL** -> 
 Esta es la base de datos definitiva con todos los registros limpiados, unificados y normalizados
 
 ### 4.4- Servicios
+#### 4.4.1- Auth
+Servicio de autenticación y creación de token de acceso a la aplicación principal. Es también dónde se inicializan todas las bases de datos
+
+#### 4.4.2- Frontend
+WSGI con Flask que sirve un pequeño frontend sencillo y atractivo para cargar excels a la pipeline de procesamiento e inserción a la base de datos unified_db.
 
 ## 5- Metodología
 
@@ -331,6 +336,7 @@ jobs:
           SECRET_KEY: ${{ secrets.ENV_SECRET_KEY }}
           ALGORITHM: ${{ secrets.ENV_ALGORITHM }}
           USER_DB_URL: ${{ secrets.ENV_USER_DB_URL }}
+          FLASK_SECRET_KEY: ${{ secrets.ENV_FLASK_SECRET_KEY }}
         run: poetry run pytest
 
       - name: Upload coverage reports to Codecov
