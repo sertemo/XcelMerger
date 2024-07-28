@@ -29,15 +29,14 @@ from auth.src.main import (
 )
 from auth.src.models import UserInDB
 from common.databases.models import Base, User
-from common.databases.engines import Session_users
 
-DATABASE_URL = "sqlite:///./test.db"
+TEST_DATABASE_URL = "sqlite:///./test.db"
 
 
 # Cliente de prueba
 client = TestClient(app)
 # Configuración de la base de datos de prueba
-test_engine = create_engine(DATABASE_URL)
+test_engine = create_engine(TEST_DATABASE_URL)
 TestingSession = sessionmaker(autocommit=False, autoflush=False, bind=test_engine)
 
 

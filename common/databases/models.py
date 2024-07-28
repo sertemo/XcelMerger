@@ -25,19 +25,20 @@ class Base(DeclarativeBase):
 class User(Base):
     __tablename__ = "users"
 
-    id: Mapped[Optional[int]] = mapped_column(primary_key=True, autoincrement=True)
-    username: Mapped[str] = mapped_column(String(100))
-    full_name: Mapped[str] = mapped_column(String(100), nullable=True)
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    username: Mapped[str] = mapped_column(String(100), unique=True)
+    full_name: Mapped[Optional[str]] = mapped_column(String(100))
     hashed_password: Mapped[str] = mapped_column(String(150))
-    email: Mapped[str] = mapped_column(String(100), nullable=True, unique=True)
+    email: Mapped[Optional[str]] = mapped_column(String(100), unique=True)
     disabled: Mapped[bool] = mapped_column(Boolean, default=False)
 
     def __repr__(self):
         return (
             f"<[User]>(id={self.id}, "
             f"username={self.username}, "
-            f"full_name={self.full_name}) "
-            f"email={self.email}) "
+            f"full_name={self.full_name}, "
+            f"email={self.email}, "
+            f"disabled={self.disabled}, "
             f"hashed_password={self.hashed_password})"
         )
 
