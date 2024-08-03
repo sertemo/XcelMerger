@@ -3,7 +3,7 @@ services:
     build: ./services/auth
     container_name: auth_container
     volumes:
-      - ./common:/app/common
+      - ./common:/app/common:ro
       - ./logs:/app/logs
     ports:
       - "8000:8000"
@@ -17,7 +17,7 @@ services:
     build: ./services/frontend
     container_name: frontend_container
     volumes:
-      - ./common:/app/common
+      - ./common:/app/common:ro
       - ./logs:/app/logs
     ports:
       - "5050:5050"
