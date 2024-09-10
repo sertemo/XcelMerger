@@ -9,7 +9,8 @@ services:
       - "8000:8000"
     env_file: ./common/.env
     networks:
-      - xm_network
+      - public
+      - private
     restart: unless-stopped
 
 
@@ -23,7 +24,7 @@ services:
       - "5050:5050"
     env_file: ./common/.env
     networks:
-      - xm_network
+      - public
     restart: unless-stopped
 
 
@@ -40,12 +41,13 @@ services:
     volumes:
       - fetch_db_data:/var/lib/postgresql/data
     networks:
-      - xm_network
+      - private
     restart: unless-stopped
 
 
 networks:
-  xm_network:
+  public:
+  private:
 
 
 volumes:

@@ -404,7 +404,7 @@ services:
       - "8000:8000"
     volumes:
       - ./logs:/app/logs
-      - ./common:/app/common
+      - ./common:/app/common:ro
     container_name: auth_container
     networks:
       - xm_network
@@ -418,7 +418,7 @@ services:
       - "5050:5050"
     volumes:
       - ./logs:/app/logs
-      - ./common:/app/common
+      - ./common:/app/common:ro
     container_name: frontend_container
     networks:
       - xm_network
